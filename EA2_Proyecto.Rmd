@@ -21,13 +21,10 @@ Número de renglones y nombre de las columnas
 
 Seleccionamos con las columnas que queremos trabajar
 ```{r}
-  datos <- datos %>% select(sexo_jefe,educa_jefe,tot_integ,perc_ocupa,ing_cor,gasto_mon,otros_gas,deposito,retiro_inv,pago_tarje)
+  datos <- datos %>% select(sexo_jefe,educa_jefe,tot_integ,perc_ocupa,ing_cor,gasto_mon,otros_gas,ahorro,deposito,retiro_inv,pago_tarje)
   datos
 ```
 
-Añadimos la columna de ahorro
-```{r}
-  ahorro <- t(datos$ing_cor - datos$gasto_mon - datos$otros_gas)
-```
+
 
 
