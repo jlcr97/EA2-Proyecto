@@ -12,3 +12,23 @@ output: html_document
   head(datos)
 ```
 
+nombre de columnas y número de renglones 
+```{r}
+  nrow(datos) 
+  names(datos)
+```
+
+seleccionamos con las columnas que queremos trabajar
+```{r}
+  datos <- datos %>% select(sexo_jefe,educa_jefe,tot_integ,perc_ocupa,ing_cor,gasto_mon,otros_gas,deposito,retiro_inv,pago_tarje)
+  datos
+
+```
+añadimos la columna de ahorro
+```{r}
+gastototal <- table(datos$gasto_mon,datos$otros_gas)
+datos <- cbind(datos,Total=rowSums(gastototal))
+datos
+```
+
+
