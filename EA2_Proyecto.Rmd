@@ -24,6 +24,6 @@ Seleccionamos con las columnas que queremos trabajar
   head(datos)
 ```
 
-Hola chicos, ¿cómo están?
+Hola chicos
 
 
