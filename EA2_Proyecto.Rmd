@@ -10,7 +10,6 @@ output: html_document
 
 ```{r}
   datos <- read.csv("BaseDatosEA2.csv")
-  head(datos)
 ```
 
 Número de renglones y nombre de las columnas 
@@ -21,10 +20,8 @@ Número de renglones y nombre de las columnas
 
 Seleccionamos las columnas que queremos trabajar
 ```{r}
-  datos <- datos %>% select(sexo_jefe,educa_jefe,tot_integ,perc_ocupa,ing_cor,gasto_mon,otros_gas,ahorro,deposito,retiro_inv,pago_tarje)
-  datos
+  datos <- datos %>% select(sexo_jefe,edad_jefe,educa_jefe,tot_integ,perc_ocupa,ing_cor,gasto_mon,otros_gas,ahorro,deposito,retiro_inv,pago_tarje)
+  head(datos)
 ```
-
-
 
 
