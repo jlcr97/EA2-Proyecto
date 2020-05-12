@@ -97,26 +97,33 @@ Gráfica de Residuos vs Y estimada
 install.packages("ggthemes")
 library(ggthemes)
 ggplot(modeloCDMX, aes(x = modeloCDMX$fitted.values ,y = modeloCDMX$residuals)) + 
-  labs(x = 'Ingreso Estimado',y = 'Residuos', title = 'Ingreso Estimado vs. Residuos') +
+  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') +
   geom_point() +
   theme_economist()
 ```
-Para supuesto esperanza cero del error y normalidad de los errores (creo que no se ven muy normales jajaj):
+Para supuesto esperanza cero del error y NORMALIDAD DE LOS ERRORES (creo que no se ven muy normales jajaj):
 ```{r}
 media_error <- sum(modeloCDMX$residuals)
-resi_2 <- modeloCDMX$residuals/(sum(modeloCDMX$residuals)^2)/(2169-6)
+S <-sqrt((sum(modeloCDMX$residuals)^2)/(2169-6))
+resi_est <- modeloCDMX$residuals/S
 
 modeloCDMX %>% 
-  ggplot(aes(x=resi_2)) + geom_histogram() + theme_economist_white()
+  ggplot(aes(x=resi_est)) + geom_histogram() + theme_economist_white()
 
 modeloCDMX %>% 
-  ggplot(aes(x=resi_2)) + geom_density() + theme_economist_white()
+  ggplot(aes(x=resi_est)) + geom_density() + theme_economist_white()
 install.packages("normtest")
 library(normtest)
 jb.norm.test(modeloCDMX$residuals,nrepl=2000) #Use Jarque Bera porque ya incluye lo de asimetría y kurtosis
 #Se rechaza la hipótesis nula de que se distribuyen normal
 ```
-
+DATOS ATÍPICOS
+```{r}
+ggplot(modeloCDMX, aes(x = modeloCDMX$fitted.values ,y = datos$gasto_mon)) + 
+  labs(x = 'Ingreso Estimado',y = 'Residuos', title = 'Ingreso Estimado vs. Residuos') +
+  geom_point() +
+  theme_economist()
+```
 
 
 
