@@ -29,7 +29,10 @@ Número de renglones y nombre de las columnas
 Seleccionamos las columnas que queremos trabajar y filtrando CDMX para nuestro análisis
 ```{r}
 
- datos <- datos %>% select(sexo_jefe,edad_jefe,educa_jefe,tot_integ,perc_ocupa, ubica_geo, est_socio, ing_cor,gasto_mon,otros_gas,ahorro,deposito,retiro_inv,pago_tarje, tabaco, erogac_tot, deudas, vestido, transporte) %>% filter(ubica_geo > 8999, ubica_geo < 10000)
+ datos <- datos %>% 
+  select(sexo_jefe,edad_jefe,educa_jefe,tot_integ,perc_ocupa, ubica_geo, est_socio, ing_cor,gasto_mon,otros_gas,ahorro,deposito,retiro_inv,pago_tarje, tabaco, erogac_tot, 
+         deudas, vestido, transporte) %>% 
+  filter(ubica_geo > 8999, ubica_geo < 10000)
 #Otras erogaciones: suma de depositos, pago de deudas, tarjetas de crédito, préstamos a otros
 
 #Creamos una nueva columna para la edad al cuadrado
@@ -89,5 +92,33 @@ datos%>%
   select(edad_2, perc_ocupa, erogac_tot, gasto_mon, educa_jefe) %>%
   ggcorr(palette = "RdBu", label = TRUE)
 ```
+Gráfica de Residuos vs Y estimada
+```{r}
+install.packages("ggthemes")
+library(ggthemes)
+ggplot(modeloCDMX, aes(x = modeloCDMX$fitted.values ,y = modeloCDMX$residuals)) + 
+  labs(x = 'Ingreso Estimado',y = 'Residuos', title = 'Ingreso Estimado vs. Residuos') +
+  geom_point() +
+  theme_economist()
+```
+Para supuesto esperanza cero del error y normalidad de los errores (creo que no se ven muy normales jajaj):
+```{r}
+media_error <- sum(modeloCDMX$residuals)
+resi_2 <- modeloCDMX$residuals/(sum(modeloCDMX$residuals)^2)/(2169-6)
+
+modeloCDMX %>% 
+  ggplot(aes(x=resi_2)) + geom_histogram() + theme_economist_white()
+
+modeloCDMX %>% 
+  ggplot(aes(x=resi_2)) + geom_density() + theme_economist_white()
+install.packages("normtest")
+library(normtest)
+jb.norm.test(modeloCDMX$residuals,nrepl=2000) #Use Jarque Bera porque ya incluye lo de asimetría y kurtosis
+#Se rechaza la hipótesis nula de que se distribuyen normal
+```
+
+
+
+
 
 
