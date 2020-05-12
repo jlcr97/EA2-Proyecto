@@ -119,8 +119,12 @@ jb.norm.test(modeloCDMX$residuals,nrepl=2000) #Use Jarque Bera porque ya incluye
 ```
 DATOS ATÍPICOS
 ```{r}
-ggplot(modeloCDMX, aes(x = modeloCDMX$fitted.values ,y = datos$gasto_mon)) + 
-  labs(x = 'Ingreso Estimado',y = 'Residuos', title = 'Ingreso Estimado vs. Residuos') +
+ggplot(modeloCDMX, aes( x = gasto_mon ,y = resi_est)) + 
+  labs(x = 'Gasto',y = 'Residuos Estandarizados', title = 'Gasto vs. Residuos') +
+  geom_point() +
+  theme_economist()
+ggplot(modeloCDMX, aes(x = edad_2 ,y = resi_est)) + 
+  labs(x = 'Edad^2',y = 'Residuos Estandarizados', title = 'Edad^2 vs. Residuos') +
   geom_point() +
   theme_economist()
 ```
