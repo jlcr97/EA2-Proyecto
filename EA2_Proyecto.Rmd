@@ -68,7 +68,7 @@ modeloCDMX <- lm(datos$ing_cor ~ edad_jefe + erogac_tot + gasto_mon + sexo_jefe 
 summary(modeloCDMX) 
 
 ```
-Renombramos las variables del sexo 1: hombre y 2: mujer
+Renombramos las variables del sexo 1: hombre y 0: mujer
 ```{r}
   datos$sexo_jefe <- factor(datos$sexo_jefe)
   levels(datos$sexo_jefe) <- c("Hombre","Mujer")
@@ -85,27 +85,23 @@ ggplot(datos,aes(sexo_jefe, ing_cor))+geom_point() +labs(y= "Ingreso corriente",
 ggplot(datos,aes(as.factor(educa_jefe), ing_cor))+geom_point() +labs(y= "Ingreso corriente", x = "Años escolarizados")
 
 ```
-Por si les sirve para algún supuesto... se ve bonita jajaja
-Correlación considerando edad, erogac_tot, gasto_mon y educa_jefe
-```{r}
-#Correlación entre variables
-datos%>%
-  select(edad_jefe, erogac_tot, gasto_mon, educa_jefe) %>%
-  ggcorr(palette = "RdBu", label = TRUE)
-```
-Como $\rho_{erogac,gasto}$ = 0.7, decidimos quitar las erogaciones totales y la matriz de correlación queda como:
+
+Correlación considerando edad, gasto_mon y educa_jefe
 ```{r}
 #Correlación entre variables
 datos%>%
   select(edad_jefe, gasto_mon, educa_jefe) %>%
   ggcorr(palette = "RdBu", label = TRUE)
 ```
-Tras reducir el modelo por una variable; es decir, tras quitar las erogaciones totales, el modelo mejorado queda como
+
+
+Tras reducir el modelo por dos variable; es decir, tras quitar las erogaciones totales y el sexo, el modelo mejorado queda como
 ```{r}
-  mejoraCDMX <- lm(datos$ing_cor ~ edad_jefe  + gasto_mon + sexo_jefe + educa_jefe, datos) 
+  mejoraCDMX <- lm(datos$ing_cor ~ edad_jefe  + gasto_mon  + educa_jefe, datos) 
   summary(mejoraCDMX) 
 ```
-
+Se decidió quitar el sexo y las erogaciones totales porque considerando el modelo con las 5 variables, teníamos una $R^2 = 0.76$ mientras que con el modelo mejorado con las 3 variables restantes, tenemos a $R^2 = 0.74$. Como la diferencia no es muy grande, por el *principio de parsimonia* nos quedamos con el modelo con menos variables.
+Se eligieron las 3 variables restantes basándonos en la optimización dada por "ols_step_best_subset(modeloCDMX)"
 
 
 Gráfica de Residuos vs Y estimada
