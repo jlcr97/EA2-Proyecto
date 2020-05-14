@@ -68,17 +68,21 @@ modeloCDMX <- lm(datos$ing_cor ~ edad_jefe + erogac_tot + gasto_mon + sexo_jefe 
 summary(modeloCDMX) 
 
 ```
+Renombramos las variables del sexo 1: hombre y 2: mujer
+```{r}
+  datos$sexo_jefe <- factor(datos$sexo_jefe)
+  levels(datos$sexo_jefe) <- c("Hombre","Mujer")
+```
+
+
 Graficas de las variables independientes elegidas vs ingreso
 ```{r}
-
 #AGREGUEN MÁS O PÓNGANLAS MÁS BONITAS SI GUSTAN
-ggplot(datos,aes(edad_2, ing_cor))+geom_point()
-ggplot(datos,aes(erogac_tot, ing_cor))+geom_point()
-ggplot(datos,aes(gasto_mon, ing_cor))+geom_point()
-ggplot(datos,aes(sexo_jefe, ing_cor))+geom_point()
-ggplot(datos,aes(educa_jefe, ing_cor))+geom_point()
-
-
+ggplot(datos,aes(edad_jefe, ing_cor))+geom_point() +labs(y= "Ingreso corriente", x = "Edad")
+ggplot(datos,aes(erogac_tot, ing_cor))+geom_point() +labs(y= "Ingreso corriente", x = "Erogaciones totales")
+ggplot(datos,aes(gasto_mon, ing_cor))+geom_point() +labs(y= "Ingreso corriente", x = "Gasto monetario")
+ggplot(datos,aes(sexo_jefe, ing_cor))+geom_point() +labs(y= "Ingreso corriente", x = "Sexo")
+ggplot(datos,aes(as.factor(educa_jefe), ing_cor))+geom_point() +labs(y= "Ingreso corriente", x = "Años escolarizados")
 
 ```
 Por si les sirve para algún supuesto... se ve bonita jajaja
