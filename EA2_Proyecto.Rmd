@@ -35,9 +35,10 @@ Seleccionamos las columnas que queremos trabajar y filtrando Avaro Obregon para 
   filter(ubica_geo > 9009, ubica_geo < 9011) ##Alvaro Obregon es el 9010
 #Otras erogaciones: suma de depositos, pago de deudas, tarjetas de crédito, préstamos a otros
 nrow(datos)
+head(datos)
 #Creamos una nueva columna para la edad al cuadrado
-datos = mutate(datos, edad_2=datos$edad_jefe^2)
-  head(datos)
+#datos = mutate(datos, edad_2=datos$edad_jefe^2)
+#  head(datos)
 ```
 
 Optimizar la elección de variables para nuestro modelo de regresión lineal múltiple.
@@ -52,7 +53,8 @@ Buscamos estimar al ingreso de las viviendas en ALvaro Obregon, ya no al ahorro 
 #Otras erogaciones: suma de depositos, pago de deudas, tarjetas de crédito, préstamos a otros
 
 #Regresión múltiple lineal entre todas las combinaciones posibles de 8 variables
-modeloCDMX <- lm(datos$ing_cor ~ est_socio + edad_2 + perc_ocupa + erogac_tot + gasto_mon + sexo_jefe + educa_jefe + tot_integ + edad_jefe, data = datos)
+modeloCDMX <- lm(datos$ing_cor ~ est_socio + perc_ocupa + erogac_tot + gasto_mon + sexo_jefe + educa_jefe + tot_integ + edad_jefe, data = datos)
+summary(modeloCDMX)
 
 #Optimiza y muestra las mejores 8 regresiones por número de variables a tomar en cuenta
 ols_step_best_subset(modeloCDMX)
@@ -61,13 +63,16 @@ ols_step_best_subset(modeloCDMX)
 # Ingreso = edad_2 + perc_ocupa + erogac_tot + gasto_mon + educa_jefe
 ```
 
-Analizando el modelo individual, obtendremos los valores estimados bo, .., b5 para cada variable explicativa. Así también un análisis general de los residuos.
+Analizando el modelo individual, obtendremos los valores estimados bo, .., b6 para cada variable explicativa. Así también un análisis general de los residuos.
 ```{r}
 
-modeloCDMX <- lm(datos$ing_cor ~ edad_jefe + erogac_tot + gasto_mon + sexo_jefe + educa_jefe, datos) 
+modeloCDMX <- lm(datos$ing_cor ~ edad_jefe + erogac_tot + gasto_mon + sexo_jefe + educa_jefe + est_socio, datos)
 summary(modeloCDMX) 
-
 ```
+Notemos que por el **p-value** y el **estadístico F**, se rechaza la hipótesis de que $\beta_0 \neq 0$, por lo que sí tenemos ordenada al origen.
+También veamos que con las **pruebas t** rechazamos las variables de sexo del jefe del hogar y el estrato socioeconómico del mismo. Por lo tanto, solo vamos a considerar a $Y = \beta_0 + \beta_1 X_{edad} + \beta_2 X_{erogac} + \beta_4 X_{gasto} + \beta_5 X_{añosEsc}$
+
+
 Renombramos las variables del sexo 1: hombre y 0: mujer
 ```{r}
   datos$sexo_jefe <- factor(datos$sexo_jefe)
@@ -83,25 +88,21 @@ ggplot(datos,aes(erogac_tot, ing_cor))+geom_point() +labs(y= "Ingreso corriente"
 ggplot(datos,aes(gasto_mon, ing_cor))+geom_point() +labs(y= "Ingreso corriente", x = "Gasto monetario")
 ggplot(datos,aes(sexo_jefe, ing_cor))+geom_point() +labs(y= "Ingreso corriente", x = "Sexo")
 ggplot(datos,aes(as.factor(educa_jefe), ing_cor))+geom_point() +labs(y= "Ingreso corriente", x = "Años escolarizados")
-
-```
-
-Correlación considerando edad, gasto_mon y educa_jefe
-```{r}
-#Correlación entre variables
-datos%>%
-  select(edad_jefe, gasto_mon, educa_jefe) %>%
-  ggcorr(palette = "RdBu", label = TRUE)
+ggplot(datos,aes(as.factor(est_socio), ing_cor))+geom_point() +labs(y= "Ingreso corriente", x = "Estrato socioeconómico")
 ```
 
 
-Tras reducir el modelo por dos variable; es decir, tras quitar las erogaciones totales y el sexo, el modelo mejorado queda como
+Tras reducir el modelo por dos variable; es decir, tras quitar el estrato socioeconómico y el sexo, el modelo mejorado queda como $Y = \beta_0 + \beta_1 X_{edad} + \beta_2 X_{erogac} + \beta_4 X_{gasto} + \beta_5 X_{añosEsc}$
 ```{r}
-  mejoraCDMX <- lm(datos$ing_cor ~ edad_jefe  + gasto_mon  + educa_jefe, datos) 
+  mejoraCDMX <- lm(datos$ing_cor ~ edad_jefe  +erogac_tot + gasto_mon  + educa_jefe, datos) 
   summary(mejoraCDMX) 
 ```
-Se decidió quitar el sexo y las erogaciones totales porque considerando el modelo con las 5 variables, teníamos una $R^2 = 0.76$ mientras que con el modelo mejorado con las 3 variables restantes, tenemos a $R^2 = 0.74$. Como la diferencia no es muy grande, por el *principio de parsimonia* nos quedamos con el modelo con menos variables.
-Se eligieron las 3 variables restantes basándonos en la optimización dada por "ols_step_best_subset(modeloCDMX)"
+Ahora llevamos a cabo la prueba Durbin-Watson
+```{r}
+
+```
+
+
 
 
 Gráfica de Residuos vs Y estimada
