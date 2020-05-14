@@ -19,9 +19,12 @@ library(orcutt)
 library(HoRM)
 ```
 
-Lectura de la base de datos
+Lectura de la base de datos 
 ```{r}
-  datos <- read.csv("BaseDatosEA2.csv")
+  #datos <- read.csv("BaseDatosEA2.csv") 
+  #Cambiamos la base porque nos marcaba error en la linea 43, esta base ya esta limpia, solo estan los datos de Alvaro Obregon y las variables que
+  #pensamos utilizar en el modelo
+  datos <- read.csv("BaseDatos2.csv")
 ```
 
 Número de renglones y nombre de las columnas 
@@ -30,16 +33,16 @@ Número de renglones y nombre de las columnas
   names(datos)
 ```
 
-Seleccionamos las columnas que queremos trabajar y filtrando Avaro Obregon para nuestro análisis
+Como ya tenemos la base de los datos de Alvaro Obregon y las variables que pensamos utilizar en el modelo ya no haremos este Chunk*****
+#Seleccionamos las columnas que queremos trabajar y filtrando Avaro Obregon para nuestro análisis
 ```{r}
-
- datos <- datos %>% 
-  select(sexo_jefe,edad_jefe,educa_jefe,tot_integ,perc_ocupa, ubica_geo, est_socio, ing_cor,gasto_mon,otros_gas,ahorro,deposito,retiro_inv,pago_tarje, tabaco, erogac_tot, 
-         deudas, vestido, transporte) %>% 
-  filter(ubica_geo > 9009, ubica_geo < 9011) ##Alvaro Obregon es el 9010
+ #datos <- datos %>%  #CAUSA ERROR
+  #select(sexo_jefe,edad_jefe,educa_jefe,tot_integ,perc_ocupa, ubica_geo, est_socio, ing_cor,gasto_mon,otros_gas,ahorro,deposito,retiro_inv,pago_tarje, tabaco, erogac_tot, 
+         #deudas, vestido, transporte) %>% 
+  #filter(ubica_geo > 9009, ubica_geo < 9011) ##Alvaro Obregon es el 9010
 #Otras erogaciones: suma de depositos, pago de deudas, tarjetas de crédito, préstamos a otros
-nrow(datos)
-head(datos)
+   #nrow(datos)
+   #head(datos)
 #Creamos una nueva columna para la edad al cuadrado
 #datos = mutate(datos, edad_2=datos$edad_jefe^2)
 #  head(datos)
@@ -50,12 +53,6 @@ Optimizar la elección de variables para nuestro modelo de regresión lineal mú
 Buscamos estimar al ingreso de las viviendas en ALvaro Obregon, ya no al ahorro por la manera en la que la definimos Ahorro = Ingresos - Gastos, si ocupamos cualquier otra variable que no sea ingreso y gasto obtenemos una R^2 máxima del 20%
 
 ```{r}
-#Esta era el modelo que teníamos del ahorro
-#modeloAhorro <- lm(datos$ahorro ~ ing_cor + sexo_jefe + educa_jefe + tot_integ + perc_ocupa + tabaco + erogac_tot, data = datos)
-#ols_step_best_subset(modeloAhorro)
-
-#Otras erogaciones: suma de depositos, pago de deudas, tarjetas de crédito, préstamos a otros
-
 #Regresión múltiple lineal entre todas las combinaciones posibles de 8 variables
 modeloCDMX <- lm(datos$ing_cor ~ est_socio + perc_ocupa + erogac_tot + gasto_mon + sexo_jefe + educa_jefe + tot_integ + edad_jefe, data = datos)
 summary(modeloCDMX)
@@ -63,8 +60,6 @@ summary(modeloCDMX)
 #Optimiza y muestra las mejores 8 regresiones por número de variables a tomar en cuenta
 ols_step_best_subset(modeloCDMX)
 
-#Tomamos la primera que alcanza una R^2 de 0.7 con 5 variables
-# Ingreso = edad_2 + perc_ocupa + erogac_tot + gasto_mon + educa_jefe
 ```
 
 Analizando el modelo individual, obtendremos los valores estimados bo, .., b6 para cada variable explicativa. Así también un análisis general de los residuos.
@@ -114,9 +109,10 @@ Ahora llevamos a cabo la prueba Durbin-Watson
 
 Como efectivamente hay autocorrelación, llevamos a cabo el método de Cochrane-Orcutt para agregar un AR(1) en el modelo
 ```{r}
-  install.packages("orcutt")
-  library(orcutt)
+  #install.packages("orcutt")
+  #library(orcutt)
   mCorregido <- cochrane.orcutt(mejoraCDMX)
+  summary(mCorregido)
   mCorregido
 ```
 
@@ -124,6 +120,12 @@ Esto es para la **autocorrelación**
 Notemos que con el nuevo modelo, ya no hay autocorrelación
 ```{r}
   dwtest(mCorregido)
+```
+Utilizaremos el método de Hildreth Lu
+```{r} 
+  HL <- hildreth.lu(y=datos$ing_cor,x=c(datos$edad_jefe, datos$educa_jefe, datos$gasto_mon, datos$erogac_tot), rho=.215)
+  HL
+
 ```
 
 
