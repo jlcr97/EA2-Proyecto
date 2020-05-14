@@ -34,7 +34,7 @@ Seleccionamos las columnas que queremos trabajar y filtrando Avaro Obregon para 
          deudas, vestido, transporte) %>% 
   filter(ubica_geo > 9009, ubica_geo < 9011) ##Alvaro Obregon es el 9010
 #Otras erogaciones: suma de depositos, pago de deudas, tarjetas de crédito, préstamos a otros
-
+nrow(datos)
 #Creamos una nueva columna para la edad al cuadrado
 datos = mutate(datos, edad_2=datos$edad_jefe^2)
   head(datos)
