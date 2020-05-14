@@ -86,12 +86,28 @@ ggplot(datos,aes(as.factor(educa_jefe), ing_cor))+geom_point() +labs(y= "Ingreso
 
 ```
 Por si les sirve para algún supuesto... se ve bonita jajaja
+Correlación considerando edad, erogac_tot, gasto_mon y educa_jefe
 ```{r}
 #Correlación entre variables
 datos%>%
-  select(edad_2, perc_ocupa, erogac_tot, gasto_mon, educa_jefe) %>%
+  select(edad_jefe, erogac_tot, gasto_mon, educa_jefe) %>%
   ggcorr(palette = "RdBu", label = TRUE)
 ```
+Como $\rho_{erogac,gasto}$ = 0.7, decidimos quitar las erogaciones totales y la matriz de correlación queda como:
+```{r}
+#Correlación entre variables
+datos%>%
+  select(edad_jefe, gasto_mon, educa_jefe) %>%
+  ggcorr(palette = "RdBu", label = TRUE)
+```
+Tras reducir el modelo por una variable; es decir, tras quitar las erogaciones totales, el modelo mejorado queda como
+```{r}
+  mejoraCDMX <- lm(datos$ing_cor ~ edad_jefe  + gasto_mon + sexo_jefe + educa_jefe, datos) 
+  summary(mejoraCDMX) 
+```
+
+
+
 Gráfica de Residuos vs Y estimada
 ```{r}
 install.packages("ggthemes")
