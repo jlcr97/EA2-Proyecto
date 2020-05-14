@@ -13,6 +13,10 @@ library(olsrr)
 #install.packates("GGally"), extensión de ggplot
 #install.packages("GGally")
 library(GGally)
+library(MASS)
+library(lmtest)
+library(orcutt)
+library(HoRM)
 ```
 
 Lectura de la base de datos
@@ -97,11 +101,30 @@ Tras reducir el modelo por dos variable; es decir, tras quitar el estrato socioe
   mejoraCDMX <- lm(datos$ing_cor ~ edad_jefe  +erogac_tot + gasto_mon  + educa_jefe, datos) 
   summary(mejoraCDMX) 
 ```
-Ahora llevamos a cabo la prueba Durbin-Watson
+Analizamos la tendencia de autocorrelación gráficamente:
 ```{r}
-
+  plot(mejoraCDMX)
 ```
 
+
+Ahora llevamos a cabo la prueba Durbin-Watson
+```{r}
+  dwtest(mejoraCDMX)
+```
+
+Como efectivamente hay autocorrelación, llevamos a cabo el método de Cochrane-Orcutt para agregar un AR(1) en el modelo
+```{r}
+  install.packages("orcutt")
+  library(orcutt)
+  mCorregido <- cochrane.orcutt(mejoraCDMX)
+  mCorregido
+```
+
+Esto es para la **autocorrelación**
+Notemos que con el nuevo modelo, ya no hay autocorrelación
+```{r}
+  dwtest(mCorregido)
+```
 
 
 
