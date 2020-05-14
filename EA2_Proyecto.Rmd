@@ -68,10 +68,10 @@ modeloCDMX <- lm(datos$ing_cor ~ edad_jefe + erogac_tot + gasto_mon + sexo_jefe 
 summary(modeloCDMX) 
 
 ```
-Renombramos las variables del sexo 1: hombre y 2: mujer
+Renombramos las variables del sexo 1: hombre y 0: mujer
 ```{r}
   datos$sexo_jefe <- factor(datos$sexo_jefe)
-  levels(datos$sexo_jefe) <- c("Hombre","Mujer")
+  levels(datos$sexo_jefe) <- c(1,0)
 ```
 
 
@@ -89,7 +89,7 @@ Por si les sirve para algún supuesto... se ve bonita jajaja
 ```{r}
 #Correlación entre variables
 datos%>%
-  select(edad_2, perc_ocupa, erogac_tot, gasto_mon, educa_jefe) %>%
+  select(edad_jefe, sexo_jefe, erogac_tot, gasto_mon, educa_jefe) %>%
   ggcorr(palette = "RdBu", label = TRUE)
 ```
 Gráfica de Residuos vs Y estimada
