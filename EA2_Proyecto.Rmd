@@ -107,9 +107,14 @@ Analizamos la tendencia de autocorrelación gráficamente:
 
 
 Ahora llevamos a cabo la prueba Durbin-Watson
+Tenemos que n = 144, $\alpha$=0.05 y 5 términos considerando la ordenada al origen lo que nos da
+$d_{L}$ = 1.67104 y $d_{U}$=1.78508
+
 ```{r}
   dwtest(mejoraCDMX)
 ```
+Como $d_W$=1.6356 < 1.67104 = $d_L$, **sí** hay autocorrelación
+
 
 Como efectivamente hay autocorrelación, llevamos a cabo el método de Cochrane-Orcutt para agregar un AR(1) en el modelo
 ```{r}
@@ -125,13 +130,10 @@ Notemos que con el nuevo modelo, ya no hay autocorrelación
 ```{r}
   dwtest(mCorregido)
 ```
+pues $d_W$=1.9815 > 1.78508 = $d_U$
 
-Utilizaremos el método de Hildreth Lu
-```{r} 
-  HL <- hildreth.lu(y=datos$ing_cor,x=c(datos$edad_jefe, datos$educa_jefe, datos$gasto_mon, datos$erogac_tot), rho=.215)
-  HL
-
-```
+De esta manera, nuestro modelo estimado es 
+$$\hat{Y} = -67285.185 + 997.229 X_{edad} + 0.701 X_{erogac} + 1.155 X_{gasto} + 5863.810 X_{añosEsc}$$
 
 
 
