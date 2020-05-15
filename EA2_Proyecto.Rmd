@@ -17,6 +17,7 @@ library(MASS)
 library(lmtest)
 library(orcutt)
 library(HoRM)
+library(car)
 ```
 
 Lectura de la base de datos 
