@@ -166,9 +166,10 @@ ggplot(modeloCDMX, aes(x = modeloCDMX$fitted.values ,y = modeloCDMX$residuals)) 
 
 Para supuesto esperanza cero del error y NORMALIDAD DE LOS ERRORES:
 ```{r}
+summary(mCorregido)
 media_error <- sum(mCorregido$residuals)
 
-S <-sqrt((sum(mCorregido$residuals)^2)/(144-5))
+S <-sqrt(sum(mCorregido$residuals^2)/(144-5))
 resi_est <- mCorregido$residuals/S
 
 ggplot(datos, aes(x=resi_est)) + geom_histogram() + theme_bw()
@@ -181,7 +182,14 @@ library(normtest)
 jb.norm.test(mCorregido$residuals,nrepl=2000) #Use Jarque Bera porque ya incluye lo de asimetría y kurtosis
 #Se rechaza la hipótesis nula de que se distribuyen normal
 ```
-
+TRANSFORMACION POTENCIA
+```{r}
+transf <- lm(log(ing_cor) ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe, datos)
+summary(transf)
+S_tr<-sqrt(sum(transf$residuals^2)/139)
+ggplot(datos, aes(transf$residuals/S_tr)) + geom_density() + theme_bw()
+jb.norm.test(transf$residuals,nrepl=2000) 
+```
 
 HETEROSCEDASTICIDAD
 ```{r}
@@ -195,7 +203,7 @@ aux <- lm(mCorregido$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_
 summary(aux)
 #El estadistico de prueba es
 nr2 <- 144*0.07749
-qchisq(.05, 14)
+qchisq(.95, 14)
 #Se rechaza la hipótesis Ho, los residuos son heteroscedasticos
 #Para la correción primero observaremos las gráficas de las variables independientes contra los residuos estandarizados para ver si alguna de ellas está involucrada en la falta de constancia de la varianza residual
 ggplot(datos,aes(edad_jefe, resi_est))+geom_point() +labs(y= "Residuos Estandarizados", x = "Edad") #Todo bien
