@@ -7,6 +7,7 @@ output: html_document
 library(tidyverse)
 library(dplyr)
 library(tidyr)
+library(matlib)
 library(ggplot2)
 #install.packages("olsrr"), es para las regresiones
 library(olsrr)
@@ -134,6 +135,24 @@ pues $d_W$=1.9815 > 1.78508 = $d_U$
 
 De esta manera, nuestro modelo estimado es 
 $$\hat{Y} = -67285.185 + 997.229 X_{edad} + 0.701 X_{erogac} + 1.155 X_{gasto} + 5863.810 X_{añosEsc}$$
+
+Para ver si hay **colinealidad** veamos si algunos de los eigenvalores de X'X son cercanos a 0
+```{r}
+  m <- as.matrix(datos)
+  m<- m[,-c(1,2,5,6,7)]
+  mat <- t(m) %*% m
+  eigen(mat)
+```
+Observemos que el eigenvalor más pequeño es 1545.136 $\neq$ 0, por lo que no se sugiere que haya colinealidad. Saquemos el número de condición de la matriz dado por $k=\frac{\lambda_{max}}{\lambda_{min}}$
+```{r}
+  eigen(mat)$values[1] / eigen(mat)$values[4]
+```
+
+Para el número de condición de la matriz
+```{r}
+  
+```
+
 
 
 
