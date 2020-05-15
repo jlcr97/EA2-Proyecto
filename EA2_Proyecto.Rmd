@@ -139,45 +139,51 @@ $$\hat{Y} = -67285.185 + 997.229 X_{edad} + 0.701 X_{erogac} + 1.155 X_{gasto} +
 
 Gráfica de Residuos vs Y estimada
 ```{r}
-install.packages("ggthemes")
-library(ggthemes)
 ggplot(modeloCDMX, aes(x = modeloCDMX$fitted.values ,y = modeloCDMX$residuals)) + 
   labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') +
   geom_point() +
   theme_economist()
 ```
 
-
-Para supuesto esperanza cero del error y NORMALIDAD DE LOS ERRORES (creo que no se ven muy normales jajaj):
+Para supuesto esperanza cero del error y NORMALIDAD DE LOS ERRORES:
 ```{r}
-media_error <- sum(modeloCDMX$residuals)
+media_error <- sum(mCorregido$residuals)
 
-S <-sqrt((sum(modeloCDMX$residuals)^2)/(2169-6))
-resi_est <- modeloCDMX$residuals/S
+S <-sqrt((sum(mCorregido$residuals)^2)/(144-5))
+resi_est <- mCorregido$residuals/S
 
-modeloCDMX %>% 
-  ggplot(aes(x=resi_est)) + geom_histogram() + theme_economist_white()
+ggplot(datos, aes(x=resi_est)) + geom_histogram() + theme_bw()
 
-modeloCDMX %>% 
-  ggplot(aes(x=resi_est)) + geom_density() + theme_economist_white()
+mCorregido %>% 
+  ggplot(aes(x=resi_est)) + geom_density() + theme_bw()
+
 install.packages("normtest")
 library(normtest)
-jb.norm.test(modeloCDMX$residuals,nrepl=2000) #Use Jarque Bera porque ya incluye lo de asimetría y kurtosis
+jb.norm.test(mCorregido$residuals,nrepl=2000) #Use Jarque Bera porque ya incluye lo de asimetría y kurtosis
 #Se rechaza la hipótesis nula de que se distribuyen normal
 ```
 
 
-DATOS ATÍPICOS
+HETEROSCEDASTICIDAD
 ```{r}
-ggplot(modeloCDMX, aes(resi_est)) + 
-  geom_boxplot() +
-  theme_economist()
-#Nueva columna con los errores estandarizados y para el ingreso estimado
-datos = mutate(datos, resi_est)
-ing_esti <- datos$ing_cor + modeloCDMX$residuals
-datos = mutate(datos, ing_esti )
-datos %>% arrange(resi_est)
-   view(datos)
+#primero analizamos la siguiente grafica
+ggplot(datos, aes(x = mCorregido$fitted.values ,y = resi_est)) + 
+  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') + geom_point() + theme_bw()
+#Vemos cómo que los residuos siguen un patron
+#Para confirmar hacemos prueba de white
+#Regresión Auxiliar
+aux <- lm(mCorregido$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, datos)
+summary(aux)
+#El estadistico de prueba es
+nr2 <- 144*0.07749
+qchisq(.05, 14)
+#Se rechaza la hipótesis Ho, los residuos son heteroscedasticos
+#Para la correción primero observaremos las gráficas de las variables independientes contra los residuos estandarizados para ver si alguna de ellas está involucrada en la falta de constancia de la varianza residual
+ggplot(datos,aes(edad_jefe, resi_est))+geom_point() +labs(y= "Residuos Estandarizados", x = "Edad") #Todo bien
+ggplot(datos,aes(erogac_tot, resi_est))+geom_point() +labs(y= "Residuos Estandarizados", x = "Erogaciones totales")
+ggplot(datos,aes(gasto_mon, resi_est))+geom_point() +labs(y= "Residuos Estandarizados", x = "Gasto monetario")
+ggplot(datos,aes(educa_jefe, resi_est))+geom_point() +labs(y= "Residuos Estandarizados", x = "Años Escolarizados")
+#Para hacer MCP
 ```
 
 
