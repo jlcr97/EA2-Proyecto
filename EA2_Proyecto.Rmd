@@ -204,13 +204,8 @@ summary(aux)
 #El estadistico de prueba es
 nr2 <- 144*0.07749
 qchisq(.95, 14)
-#Se rechaza la hipótesis Ho, los residuos son heteroscedasticos
-#Para la correción primero observaremos las gráficas de las variables independientes contra los residuos estandarizados para ver si alguna de ellas está involucrada en la falta de constancia de la varianza residual
-ggplot(datos,aes(edad_jefe, resi_est))+geom_point() +labs(y= "Residuos Estandarizados", x = "Edad") #Todo bien
-ggplot(datos,aes(erogac_tot, resi_est))+geom_point() +labs(y= "Residuos Estandarizados", x = "Erogaciones totales")
-ggplot(datos,aes(gasto_mon, resi_est))+geom_point() +labs(y= "Residuos Estandarizados", x = "Gasto monetario")
-ggplot(datos,aes(educa_jefe, resi_est))+geom_point() +labs(y= "Residuos Estandarizados", x = "Años Escolarizados")
-#Para hacer MCP
+#No se rechaza la hipótesis Ho, los residuos son homoscedasticos
+
 ```
 
 
