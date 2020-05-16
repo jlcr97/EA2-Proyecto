@@ -67,6 +67,7 @@ ols_step_best_subset(modeloCDMX)
 
 ```
 
+
 Analizando el modelo individual, obtendremos los valores estimados bo, .., b6 para cada variable explicativa. Así también un análisis general de los residuos.
 ```{r}
 
@@ -86,7 +87,7 @@ Renombramos las variables del sexo 1: hombre y 0: mujer
 Renombramos las variables del estrato socioeconómico 1: bajo, 2: medio bajo, 3: medio alto, 4: alto
 ```{r}
   datos$est_socio<- factor(datos$est_socio)
-  levels(datos$est_socio) <- c("Bajo","Medio bajo", "Medio alto", "Alto")
+  levels(datos$est_socio) <- c("Medio bajo", "Medio alto", "Alto")
 ```
 
 
