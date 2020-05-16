@@ -178,6 +178,7 @@ aux <- lm(mejoraCDMX$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_
 summary(aux)
 nr2 <- 144*0.07631
 nr2
+
 #analizando sin datos atipicos
 ggplot(BaseSA, aes(x = sin_ati$fitted.values ,y =sin_ati$residuals/Sta)) + 
   labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') + geom_point() + theme_bw()
@@ -185,6 +186,7 @@ aux2 <- lm(sin_ati$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_je
 summary(aux2)
 nr22 <-144*0.06803
 nr22
+
 #Analizando heterosc con la transformcion potencia
 ggplot(BaseSA, aes(x = transf$fitted.values ,y =transf$residuals/St)) + 
   labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') + geom_point() + theme_bw()
