@@ -231,24 +231,32 @@ qchisq(.95,2)
 HETEROSCEDASTICIDAD
 ```{r}
 Sta<-sqrt(sum(sin_ati$residuals^2)/139)
-#primero analizamos la siguiente grafica
+#primero analizamos la siguiente grafica modelo solo con orcutt
+ggplot(datos, aes(x = mCorregido$fitted.values ,y =mCorregido$residuals/S)) + 
+  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') + geom_point() + theme_bw()
+#Vemos cómo que los residuos siguen un patron
+#Regresión Auxiliar
+aux <- lm(mCorregido$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, datos)
+summary(aux)
+nr2 <- 144*0.07749
+nr2
+#analizando sin datos atipicos
 ggplot(BaseSA, aes(x = sin_ati$fitted.values ,y =sin_ati$residuals/Sta)) + 
   labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') + geom_point() + theme_bw()
+aux2 <- lm(sin_ati$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, BaseSA)
+summary(aux2)
+nr22 <-144*0.06803
+nr22
 #Analizando heterosc con la transformcion potencia
 ggplot(BaseSA, aes(x = transf$fitted.values ,y =transf$residuals/St)) + 
   labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') + geom_point() + theme_bw()
-#Vemos cómo que los residuos siguen un patron
-#Para confirmar hacemos prueba de white
+#prueba de white
 #Regresión Auxiliar
-aux <- lm(sin_ati$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, BaseSA)
-summary(aux)
-#heterosc con transf
-aux2 <- lm(transf$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, BaseSA)
-summary(aux2)
-
+aux3 <- lm(transf$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, BaseSA)
+summary(aux3)
 #El estadistico de prueba es
-nr2 <- 144*0.0680
-nr2
+nr23 <- 144*0.0680
+nr23
 qchisq(.95, 14)
 #No se rechaza la hipótesis Ho, los residuos son homoscedasticos
 
