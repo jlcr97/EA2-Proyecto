@@ -165,7 +165,7 @@ ggplot(modeloCDMX, aes(x = modeloCDMX$fitted.values ,y = modeloCDMX$residuals)) 
 ```
 
 Para supuesto esperanza cero del error y NORMALIDAD DE LOS ERRORES:
-```{r}
+  ```{r}
 summary(mCorregido)
 media_error <- sum(mCorregido$residuals)
 
