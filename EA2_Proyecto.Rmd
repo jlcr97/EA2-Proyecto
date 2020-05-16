@@ -165,7 +165,7 @@ ggplot(modeloCDMX, aes(x = modeloCDMX$fitted.values ,y = modeloCDMX$residuals)) 
 ```
 
 Para supuesto esperanza cero del error y NORMALIDAD DE LOS ERRORES:
-  ```{r}
+```{r}
 summary(mCorregido)
 media_error <- sum(mCorregido$residuals)
 
@@ -182,13 +182,19 @@ library(normtest)
 jb.norm.test(mCorregido$residuals,nrepl=2000) #Use Jarque Bera porque ya incluye lo de asimetría y kurtosis
 #Se rechaza la hipótesis nula de que se distribuyen normal
 ```
+
 TRANSFORMACION POTENCIA
+primero cargamos la base de datos sin los datos atipicos
 ```{r}
-transf <- lm(log(ing_cor) ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe, datos)
+BaseSA <- read.csv("BaseSA.csv")
+transf <- lm(ing_cor^(1/2) ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe, BaseSA)
 summary(transf)
-S_tr<-sqrt(sum(transf$residuals^2)/139)
-ggplot(datos, aes(transf$residuals/S_tr)) + geom_density() + theme_bw()
+St<-sqrt(sum(transf$residuals^2)/139)
+ggplot(BaseSA, aes(transf$residuals/St)) + geom_density() + theme_bw()
 jb.norm.test(transf$residuals,nrepl=2000) 
+#comparamos con
+qchisq(.95,2)
+#No se rechaza la hipotesis nula de que se distribuyen normal
 ```
 
 HETEROSCEDASTICIDAD
