@@ -128,24 +128,18 @@ Observemos que el eigenvalor más pequeño es 1545.136 $\neq$ 0, por lo que no s
 
 
 
-Gráfica de Residuos vs Y estimada
-```{r}
-ggplot(modeloCDMX, aes(x = modeloCDMX$fitted.values ,y = modeloCDMX$residuals)) + 
-  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') +
-  geom_point() +
-  theme_economist()
-```
 
 Para supuesto esperanza cero del error y NORMALIDAD DE LOS ERRORES:
 ```{r}
-summary(mCorregido)
-media_error <- sum(mCorregido$residuals)
+summary(mejoraCDMX)
+media_error <- sum(mejoraCDMX$residuals)
 
-S <-sqrt(sum(mCorregido$residuals^2)/(144-5))
-resi_est <- mCorregido$residuals/S
+S <-sqrt(sum(mejoraCDMX$residuals^2)/(144-5))
+resi_est <- mejoraCDMX$residuals/S
 #primero cargamos la base de datos sin los datos atipicos
 BaseSA <- read.csv("BaseSA.csv")
-sin_ati <- lm(ing_cor ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe, BaseSA)
+sin_ati <- lm(BaseSA$ing_cor ~ edad_jefe  +erogac_tot + gasto_mon  + educa_jefe, BaseSA) 
+summary(sin_ati) 
 ggplot(BaseSA, aes( x = sin_ati$residuals)) + labs(x = '',y = '', title = 'Histograma de los Residuos') + geom_histogram() + theme_bw()
 
 ggplot(BaseSA,aes(sin_ati$residuals))+ labs(x = '',y = '', title = 'Densidad de los Residuos') + geom_density() + theme_bw()
@@ -174,15 +168,15 @@ qchisq(.95,2)
 
 HETEROSCEDASTICIDAD
 ```{r}
-Sta<-sqrt(sum(sin_ati$residuals^2)/139)
+Sta<-sqrt(sum(mejoraCDMX$residuals^2)/139)
 #primero analizamos la siguiente grafica modelo solo con orcutt
-ggplot(datos, aes(x = mCorregido$fitted.values ,y =mCorregido$residuals/S)) + 
+ggplot(datos, aes(x = mejoraCDMX$fitted.values ,y =mejoraCDMX$residuals/S)) + 
   labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') + geom_point() + theme_bw()
 #Vemos cómo que los residuos siguen un patron
 #Regresión Auxiliar
-aux <- lm(mCorregido$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, datos)
+aux <- lm(mejoraCDMX$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, datos)
 summary(aux)
-nr2 <- 144*0.07749
+nr2 <- 144*0.07631
 nr2
 #analizando sin datos atipicos
 ggplot(BaseSA, aes(x = sin_ati$fitted.values ,y =sin_ati$residuals/Sta)) + 
@@ -199,7 +193,7 @@ ggplot(BaseSA, aes(x = transf$fitted.values ,y =transf$residuals/St)) +
 aux3 <- lm(transf$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, BaseSA)
 summary(aux3)
 #El estadistico de prueba es
-nr23 <- 144*0.0680
+nr23 <- 144*0.1247
 nr23
 qchisq(.95, 14)
 #No se rechaza la hipótesis Ho, los residuos son homoscedasticos
