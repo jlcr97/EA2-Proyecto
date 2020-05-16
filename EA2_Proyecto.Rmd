@@ -19,6 +19,7 @@ library(lmtest)
 library(orcutt)
 library(HoRM)
 library(car)
+library(nlme)
 ```
 
 Lectura de la base de datos 
@@ -136,6 +137,32 @@ pues $d_W$=1.9815 > 1.78508 = $d_U$
 De esta manera, nuestro modelo estimado es 
 $$\hat{Y} = -67285.185 + 997.229 X_{edad} + 0.701 X_{erogac} + 1.155 X_{gasto} + 5863.810 X_{añosEsc}$$
 
+
+
+Con la corrección del modelo por Cochrane-Orcutt no se cumple ni normalidad ni media de los residuos = 0. Sospechamos que la razón de esto es la función de cochrane.orcutt porque no terminamos de entender cómo es que la función está programada. Otro de los métodos que vimos para solucionar la autocorrelación, es **mínimos cuadrados generalizados** entonces haremos eso.
+
+```{r}
+  dato <- as.data.frame(datos)
+  ing <- datos$ing_cor
+  edad <- datos$edad_jefe
+  erog <- datos$erogac_tot
+  educ <- datos$educa_jefe
+  gasto <- datos$gasto_mon
+  glsModel <- gls(ing ~ edad + erog + 
+    gasto + educ, correlation = corAR1(form = ~ing))
+  summary(glsModel)
+```
+
+```{r}
+  v <- glsModel$residuals 
+  attr(v,"std") <- NULL # get rid of the additional attribute
+  car::durbinWatsonTest( v )
+```
+
+
+
+
+
 Para ver si hay **colinealidad** veamos si algunos de los eigenvalores de X'X son cercanos a 0
 ```{r}
   m <- as.matrix(datos)
@@ -143,16 +170,11 @@ Para ver si hay **colinealidad** veamos si algunos de los eigenvalores de X'X so
   mat <- t(m) %*% m
   eigen(mat)
 ```
+
 Observemos que el eigenvalor más pequeño es 1545.136 $\neq$ 0, por lo que no se sugiere que haya colinealidad. Saquemos el número de condición de la matriz dado por $k=\frac{\lambda_{max}}{\lambda_{min}}$
 ```{r}
   eigen(mat)$values[1] / eigen(mat)$values[4]
 ```
-
-Para el número de condición de la matriz
-```{r}
-  
-```
-
 
 
 
