@@ -83,6 +83,12 @@ Renombramos las variables del sexo 1: hombre y 0: mujer
   levels(datos$sexo_jefe) <- c("Hombre","Mujer")
 ```
 
+Renombramos las variables del estrato socioeconómico 1: bajo, 2: medio bajo, 3: medio alto, 4: alto
+```{r}
+  datos$est_socio<- factor(datos$est_socio)
+  levels(datos$est_socio) <- c("Bajo","Medio bajo", "Medio alto", "Alto")
+```
+
 
 Graficas de las variables independientes elegidas vs ingreso
 ```{r}
