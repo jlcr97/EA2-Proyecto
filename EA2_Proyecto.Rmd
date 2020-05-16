@@ -101,72 +101,15 @@ ggplot(datos,aes(as.factor(educa_jefe), ing_cor))+geom_point() +labs(y= "Ingreso
 ggplot(datos,aes(as.factor(est_socio), ing_cor))+geom_point() +labs(y= "Ingreso corriente", x = "Estrato socioeconómico")
 ```
 
+ESTE ES EL MODELO CON EL QUE VAMOS A TRABAJAR !!!! --------------------------------------------------------------------
 
 Tras reducir el modelo por dos variable; es decir, tras quitar el estrato socioeconómico y el sexo, el modelo mejorado queda como $Y = \beta_0 + \beta_1 X_{edad} + \beta_2 X_{erogac} + \beta_4 X_{gasto} + \beta_5 X_{añosEsc}$
 ```{r}
   mejoraCDMX <- lm(datos$ing_cor ~ edad_jefe  +erogac_tot + gasto_mon  + educa_jefe, datos) 
   summary(mejoraCDMX) 
 ```
-
-Analizamos la tendencia de autocorrelación gráficamente:
-```{r}
-  plot(mejoraCDMX)
-```
-
-
-Ahora llevamos a cabo la prueba Durbin-Watson
-Tenemos que n = 144, $\alpha$=0.05 y 5 términos considerando la ordenada al origen lo que nos da
-$d_{L}$ = 1.67104 y $d_{U}$=1.78508
-
-```{r}
-  dwtest(mejoraCDMX)
-```
-Como $d_W$=1.6356 < 1.67104 = $d_L$, **sí** hay autocorrelación
-
-
-Como efectivamente hay autocorrelación, llevamos a cabo el método de Cochrane-Orcutt para agregar un AR(1) en el modelo
-```{r}
-  #install.packages("orcutt")
-  #library(orcutt)
-  mCorregido <- cochrane.orcutt(mejoraCDMX)
-  summary(mCorregido)
-  mCorregido
-```
-
-Esto es para la **autocorrelación**
-Notemos que con el nuevo modelo, ya no hay autocorrelación
-```{r}
-  dwtest(mCorregido)
-```
-pues $d_W$=1.9815 > 1.78508 = $d_U$
-
-De esta manera, nuestro modelo estimado es 
-$$\hat{Y} = -67285.185 + 997.229 X_{edad} + 0.701 X_{erogac} + 1.155 X_{gasto} + 5863.810 X_{añosEsc}$$
-
-
-
-Con la corrección del modelo por Cochrane-Orcutt no se cumple ni normalidad ni media de los residuos = 0. Sospechamos que la razón de esto es la función de cochrane.orcutt porque no terminamos de entender cómo es que la función está programada. Otro de los métodos que vimos para solucionar la autocorrelación, es **mínimos cuadrados generalizados** entonces haremos eso.
-
-```{r}
-  dato <- as.data.frame(datos)
-  ing <- datos$ing_cor
-  edad <- datos$edad_jefe
-  erog <- datos$erogac_tot
-  educ <- datos$educa_jefe
-  gasto <- datos$gasto_mon
-  glsModel <- gls(ing ~ edad + erog + 
-    gasto + educ, correlation = corAR1(form = ~ing))
-  summary(glsModel)
-```
-
-```{r}
-  v <- glsModel$residuals 
-  attr(v,"std") <- NULL # get rid of the additional attribute
-  car::durbinWatsonTest( v )
-```
-
-
-
+Entonces el modelo corregido, que en con el que nos quedamos es 
+$$Y = -74450 + 998.4 X_{edad} + 0.6726 X_{erogac} + 1.228 X_{gasto} + 9390 X_{añosEsc}$$
 
 
 Para ver si hay **colinealidad** veamos si algunos de los eigenvalores de X'X son cercanos a 0
