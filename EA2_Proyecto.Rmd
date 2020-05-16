@@ -140,9 +140,9 @@ resi_est <- mejoraCDMX$residuals/S
 BaseSA <- read.csv("BaseSA.csv")
 sin_ati <- lm(BaseSA$ing_cor ~ edad_jefe  +erogac_tot + gasto_mon  + educa_jefe, BaseSA) 
 summary(sin_ati) 
-ggplot(BaseSA, aes( x = sin_ati$residuals)) + labs(x = '',y = '', title = 'Histograma de los Residuos') + geom_histogram() + theme_bw()
+ggplot(BaseSA, aes( x = sin_ati$residuals)) + labs(x = 'Residuos',y = 'Frecuencia', title = '') + geom_histogram() + theme_bw()
 
-ggplot(BaseSA,aes(sin_ati$residuals))+ labs(x = '',y = '', title = 'Densidad de los Residuos') + geom_density() + theme_bw()
+ggplot(BaseSA,aes(sin_ati$residuals))+ labs(x = 'Residuos',y = 'Densidad', title = '') + geom_density() + theme_bw()
 
 install.packages("normtest")
 library(normtest)
@@ -157,9 +157,9 @@ TRANSFORMACION POTENCIA
 transf <- lm(ing_cor^(1/2) ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe, BaseSA)
 summary(transf)
 St<-sqrt(sum(transf$residuals^2)/139)
-ggplot(BaseSA, aes( x = transf$residuals)) + labs(x = '',y = '', title = 'Histograma de los Residuos') + geom_histogram() + theme_bw()
+ggplot(BaseSA, aes( x = transf$residuals)) + labs(x = 'Residuos',y = 'Frecuencia', title = '') + geom_histogram() + theme_bw()
 
-ggplot(BaseSA,aes(transf$residuals))+ labs(x = '',y = '', title = 'Densidad de los Residuos') + geom_density() + theme_bw()
+ggplot(BaseSA,aes(transf$residuals))+ labs(x = 'Residuos',y = 'Densidad', title = '') + geom_density() + theme_bw()
 jb.norm.test(transf$residuals,nrepl=2000) 
 #comparamos con
 qchisq(.95,2)
@@ -168,10 +168,9 @@ qchisq(.95,2)
 
 HETEROSCEDASTICIDAD
 ```{r}
-Sta<-sqrt(sum(mejoraCDMX$residuals^2)/139)
 #primero analizamos la siguiente grafica modelo solo con orcutt
 ggplot(datos, aes(x = mejoraCDMX$fitted.values ,y =mejoraCDMX$residuals/S)) + 
-  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') + geom_point() + theme_bw()
+  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = '') + geom_point() + theme_bw()
 #Vemos cómo que los residuos siguen un patron
 #Regresión Auxiliar
 aux <- lm(mejoraCDMX$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, datos)
@@ -180,8 +179,9 @@ nr2 <- 144*0.07631
 nr2
 
 #analizando sin datos atipicos
+Sta<-sqrt(sum(sin_ati$residuals^2)/139)
 ggplot(BaseSA, aes(x = sin_ati$fitted.values ,y =sin_ati$residuals/Sta)) + 
-  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') + geom_point() + theme_bw()
+  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = '') + geom_point() + theme_bw()
 aux2 <- lm(sin_ati$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, BaseSA)
 summary(aux2)
 nr22 <-144*0.06803
@@ -189,7 +189,7 @@ nr22
 
 #Analizando heterosc con la transformcion potencia
 ggplot(BaseSA, aes(x = transf$fitted.values ,y =transf$residuals/St)) + 
-  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') + geom_point() + theme_bw()
+  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = '') + geom_point() + theme_bw()
 #prueba de white
 #Regresión Auxiliar
 aux3 <- lm(transf$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, BaseSA)
