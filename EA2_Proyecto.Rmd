@@ -193,7 +193,7 @@ ggplot(modeloCDMX, aes(x = modeloCDMX$fitted.values ,y = modeloCDMX$residuals)) 
 ```
 
 Para supuesto esperanza cero del error y NORMALIDAD DE LOS ERRORES:
-  ```{r}
+```{r}
 summary(mCorregido)
 media_error <- sum(mCorregido$residuals)
 
@@ -230,16 +230,25 @@ qchisq(.95,2)
 
 HETEROSCEDASTICIDAD
 ```{r}
+Sta<-sqrt(sum(sin_ati$residuals^2)/139)
 #primero analizamos la siguiente grafica
-ggplot(datos, aes(x = mCorregido$fitted.values ,y = resi_est)) + 
+ggplot(BaseSA, aes(x = sin_ati$fitted.values ,y =sin_ati$residuals/Sta)) + 
+  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') + geom_point() + theme_bw()
+#Analizando heterosc con la transformcion potencia
+ggplot(BaseSA, aes(x = transf$fitted.values ,y =transf$residuals/St)) + 
   labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') + geom_point() + theme_bw()
 #Vemos cómo que los residuos siguen un patron
 #Para confirmar hacemos prueba de white
 #Regresión Auxiliar
-aux <- lm(mCorregido$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, datos)
+aux <- lm(sin_ati$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, BaseSA)
 summary(aux)
+#heterosc con transf
+aux2 <- lm(transf$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, BaseSA)
+summary(aux2)
+
 #El estadistico de prueba es
-nr2 <- 144*0.07749
+nr2 <- 144*0.0680
+nr2
 qchisq(.95, 14)
 #No se rechaza la hipótesis Ho, los residuos son homoscedasticos
 
