@@ -193,32 +193,35 @@ ggplot(modeloCDMX, aes(x = modeloCDMX$fitted.values ,y = modeloCDMX$residuals)) 
 ```
 
 Para supuesto esperanza cero del error y NORMALIDAD DE LOS ERRORES:
-```{r}
+  ```{r}
 summary(mCorregido)
 media_error <- sum(mCorregido$residuals)
 
 S <-sqrt(sum(mCorregido$residuals^2)/(144-5))
 resi_est <- mCorregido$residuals/S
+#primero cargamos la base de datos sin los datos atipicos
+BaseSA <- read.csv("BaseSA.csv")
+sin_ati <- lm(ing_cor ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe, BaseSA)
+ggplot(BaseSA, aes( x = sin_ati$residuals)) + labs(x = '',y = '', title = 'Histograma de los Residuos') + geom_histogram() + theme_bw()
 
-ggplot(datos, aes(x=resi_est)) + geom_histogram() + theme_bw()
-
-mCorregido %>% 
-  ggplot(aes(x=resi_est)) + geom_density() + theme_bw()
+ggplot(BaseSA,aes(sin_ati$residuals))+ labs(x = '',y = '', title = 'Densidad de los Residuos') + geom_density() + theme_bw()
 
 install.packages("normtest")
 library(normtest)
-jb.norm.test(mCorregido$residuals,nrepl=2000) #Use Jarque Bera porque ya incluye lo de asimetría y kurtosis
+jb.norm.test(sin_ati$residuals,nrepl=2000) #Use Jarque Bera porque ya incluye lo de asimetría y kurtosis
 #Se rechaza la hipótesis nula de que se distribuyen normal
 ```
 
 TRANSFORMACION POTENCIA
-primero cargamos la base de datos sin los datos atipicos
+
 ```{r}
-BaseSA <- read.csv("BaseSA.csv")
+
 transf <- lm(ing_cor^(1/2) ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe, BaseSA)
 summary(transf)
 St<-sqrt(sum(transf$residuals^2)/139)
-ggplot(BaseSA, aes(transf$residuals/St)) + geom_density() + theme_bw()
+ggplot(BaseSA, aes( x = transf$residuals)) + labs(x = '',y = '', title = 'Histograma de los Residuos') + geom_histogram() + theme_bw()
+
+ggplot(BaseSA,aes(transf$residuals))+ labs(x = '',y = '', title = 'Densidad de los Residuos') + geom_density() + theme_bw()
 jb.norm.test(transf$residuals,nrepl=2000) 
 #comparamos con
 qchisq(.95,2)
