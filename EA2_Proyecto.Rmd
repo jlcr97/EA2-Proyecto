@@ -150,6 +150,30 @@ jb.norm.test(sin_ati$residuals,nrepl=2000) #Use Jarque Bera porque ya incluye lo
 #Se rechaza la hipótesis nula de que se distribuyen normal
 ```
 
+Intento de histograma con línea
+```{r}
+  summary(mejoraCDMX)
+  media_error <- sum(mejoraCDMX$residuals)
+  
+  S <-sqrt(sum(mejoraCDMX$residuals^2)/(144-5))
+  resi_est <- mejoraCDMX$residuals/S
+  #primero cargamos la base de datos sin los datos atipicos
+  BaseSA <- read.csv("BaseSA.csv")
+  sin_ati <- lm(BaseSA$ing_cor ~ edad_jefe  +erogac_tot + gasto_mon  + educa_jefe, BaseSA) 
+  summary(sin_ati) 
+  
+ x <- sin_ati$residuals
+  h<-hist(x, breaks=10, col="red", xlab="Miles Per Gallon",
+     main="Histogram with Normal Curve")
+  xfit<-seq(min(x),max(x),length=100)
+  yfit<-dnorm(xfit,mean=mean(x),sd=sd(x))
+  yfit <- yfit*diff(h$mids[1:2])*length(x)
+  lines(xfit, yfit, col="blue", lwd=2)
+ 
+```
+
+
+
 TRANSFORMACION POTENCIA
 
 ```{r}
