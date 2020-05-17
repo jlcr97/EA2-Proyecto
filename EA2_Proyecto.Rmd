@@ -67,6 +67,7 @@ ols_step_best_subset(modeloCDMX)
 
 ```
 
+
 Analizando el modelo individual, obtendremos los valores estimados bo, .., b6 para cada variable explicativa. Así también un análisis general de los residuos.
 ```{r}
 
@@ -86,7 +87,7 @@ Renombramos las variables del sexo 1: hombre y 0: mujer
 Renombramos las variables del estrato socioeconómico 1: bajo, 2: medio bajo, 3: medio alto, 4: alto
 ```{r}
   datos$est_socio<- factor(datos$est_socio)
-  levels(datos$est_socio) <- c("Bajo","Medio bajo", "Medio alto", "Alto")
+  levels(datos$est_socio) <- c("Medio bajo", "Medio alto", "Alto")
 ```
 
 
@@ -101,72 +102,15 @@ ggplot(datos,aes(as.factor(educa_jefe), ing_cor))+geom_point() +labs(y= "Ingreso
 ggplot(datos,aes(as.factor(est_socio), ing_cor))+geom_point() +labs(y= "Ingreso corriente", x = "Estrato socioeconómico")
 ```
 
+ESTE ES EL MODELO CON EL QUE VAMOS A TRABAJAR !!!! --------------------------------------------------------------------
 
 Tras reducir el modelo por dos variable; es decir, tras quitar el estrato socioeconómico y el sexo, el modelo mejorado queda como $Y = \beta_0 + \beta_1 X_{edad} + \beta_2 X_{erogac} + \beta_4 X_{gasto} + \beta_5 X_{añosEsc}$
 ```{r}
   mejoraCDMX <- lm(datos$ing_cor ~ edad_jefe  +erogac_tot + gasto_mon  + educa_jefe, datos) 
   summary(mejoraCDMX) 
 ```
-
-Analizamos la tendencia de autocorrelación gráficamente:
-```{r}
-  plot(mejoraCDMX)
-```
-
-
-Ahora llevamos a cabo la prueba Durbin-Watson
-Tenemos que n = 144, $\alpha$=0.05 y 5 términos considerando la ordenada al origen lo que nos da
-$d_{L}$ = 1.67104 y $d_{U}$=1.78508
-
-```{r}
-  dwtest(mejoraCDMX)
-```
-Como $d_W$=1.6356 < 1.67104 = $d_L$, **sí** hay autocorrelación
-
-
-Como efectivamente hay autocorrelación, llevamos a cabo el método de Cochrane-Orcutt para agregar un AR(1) en el modelo
-```{r}
-  #install.packages("orcutt")
-  #library(orcutt)
-  mCorregido <- cochrane.orcutt(mejoraCDMX)
-  summary(mCorregido)
-  mCorregido
-```
-
-Esto es para la **autocorrelación**
-Notemos que con el nuevo modelo, ya no hay autocorrelación
-```{r}
-  dwtest(mCorregido)
-```
-pues $d_W$=1.9815 > 1.78508 = $d_U$
-
-De esta manera, nuestro modelo estimado es 
-$$\hat{Y} = -67285.185 + 997.229 X_{edad} + 0.701 X_{erogac} + 1.155 X_{gasto} + 5863.810 X_{añosEsc}$$
-
-
-
-Con la corrección del modelo por Cochrane-Orcutt no se cumple ni normalidad ni media de los residuos = 0. Sospechamos que la razón de esto es la función de cochrane.orcutt porque no terminamos de entender cómo es que la función está programada. Otro de los métodos que vimos para solucionar la autocorrelación, es **mínimos cuadrados generalizados** entonces haremos eso.
-
-```{r}
-  dato <- as.data.frame(datos)
-  ing <- datos$ing_cor
-  edad <- datos$edad_jefe
-  erog <- datos$erogac_tot
-  educ <- datos$educa_jefe
-  gasto <- datos$gasto_mon
-  glsModel <- gls(ing ~ edad + erog + 
-    gasto + educ, correlation = corAR1(form = ~ing))
-  summary(glsModel)
-```
-
-```{r}
-  v <- glsModel$residuals 
-  attr(v,"std") <- NULL # get rid of the additional attribute
-  car::durbinWatsonTest( v )
-```
-
-
-
+Entonces el modelo corregido, que en con el que nos quedamos es 
+$$Y = -74450 + 998.4 X_{edad} + 0.6726 X_{erogac} + 1.228 X_{gasto} + 9390 X_{añosEsc}$$
 
 
 Para ver si hay **colinealidad** veamos si algunos de los eigenvalores de X'X son cercanos a 0
@@ -184,33 +128,42 @@ Observemos que el eigenvalor más pequeño es 1545.136 $\neq$ 0, por lo que no s
 
 
 
-Gráfica de Residuos vs Y estimada
-```{r}
-ggplot(modeloCDMX, aes(x = modeloCDMX$fitted.values ,y = modeloCDMX$residuals)) + 
-  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') +
-  geom_point() +
-  theme_economist()
-```
 
 Para supuesto esperanza cero del error y NORMALIDAD DE LOS ERRORES:
 ```{r}
-summary(mCorregido)
-media_error <- sum(mCorregido$residuals)
+summary(mejoraCDMX)
+media_error <- sum(mejoraCDMX$residuals)
 
-S <-sqrt(sum(mCorregido$residuals^2)/(144-5))
-resi_est <- mCorregido$residuals/S
+S <-sqrt(sum(mejoraCDMX$residuals^2)/(144-5))
+resi_est <- mejoraCDMX$residuals/S
 #primero cargamos la base de datos sin los datos atipicos
 BaseSA <- read.csv("BaseSA.csv")
-sin_ati <- lm(ing_cor ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe, BaseSA)
-ggplot(BaseSA, aes( x = sin_ati$residuals)) + labs(x = '',y = '', title = 'Histograma de los Residuos') + geom_histogram() + theme_bw()
+sin_ati <- lm(BaseSA$ing_cor ~ edad_jefe  +erogac_tot + gasto_mon  + educa_jefe, BaseSA) 
+summary(sin_ati) 
+ggplot(BaseSA, aes( x = sin_ati$residuals)) + labs(x = 'Residuos',y = 'Frecuencia', title = '') + geom_histogram() + theme_bw()
 
-ggplot(BaseSA,aes(sin_ati$residuals))+ labs(x = '',y = '', title = 'Densidad de los Residuos') + geom_density() + theme_bw()
+ggplot(BaseSA,aes(sin_ati$residuals))+ labs(x = 'Residuos',y = 'Densidad', title = '') + geom_density() + theme_bw()
 
 install.packages("normtest")
 library(normtest)
 jb.norm.test(sin_ati$residuals,nrepl=2000) #Use Jarque Bera porque ya incluye lo de asimetría y kurtosis
 #Se rechaza la hipótesis nula de que se distribuyen normal
 ```
+
+Histograma con línea de modelo inicial
+```{r}
+  #primero cargamos la base de datos sin los datos atipicos
+  BaseSA <- read.csv("BaseSA.csv")
+  sin_ati <- lm(BaseSA$ing_cor ~ edad_jefe  +erogac_tot + gasto_mon  + educa_jefe, BaseSA) 
+  
+  X <- sin_ati$residuals
+  df <- data.frame(X) 
+  histog <- ggplot(data = df, aes(x=X)) + geom_histogram(aes(y=..density..), color = "black") + theme_bw() + geom_density(kernel="gaussian", color = "red", size=2) + labs(x = 'Residuos',y = 'Frecuencia relativa', title = '')
+  histog
+  
+```
+
+
 
 TRANSFORMACION POTENCIA
 
@@ -219,43 +172,61 @@ TRANSFORMACION POTENCIA
 transf <- lm(ing_cor^(1/2) ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe, BaseSA)
 summary(transf)
 St<-sqrt(sum(transf$residuals^2)/139)
-ggplot(BaseSA, aes( x = transf$residuals)) + labs(x = '',y = '', title = 'Histograma de los Residuos') + geom_histogram() + theme_bw()
+ggplot(BaseSA, aes( x = transf$residuals)) + labs(x = 'Residuos',y = 'Frecuencia', title = '') + geom_histogram() + theme_bw()
 
-ggplot(BaseSA,aes(transf$residuals))+ labs(x = '',y = '', title = 'Densidad de los Residuos') + geom_density() + theme_bw()
+ggplot(BaseSA,aes(transf$residuals))+ labs(x = 'Residuos',y = 'Densidad', title = '') + geom_density() + theme_bw()
 jb.norm.test(transf$residuals,nrepl=2000) 
 #comparamos con
 qchisq(.95,2)
 #No se rechaza la hipotesis nula de que se distribuyen normal
 ```
 
+Histograma con densidad de transformación potencia
+
+```{r}
+  
+  transf <- lm(ing_cor^(1/2) ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe, BaseSA)
+  
+  X <- transf$residuals
+  df <- data.frame(X) 
+  histog <- ggplot(data = df, aes(x=X)) + geom_histogram(aes(y=..density..), color = "black") + theme_bw() + geom_density(kernel="gaussian", color = "red", size=2) + labs(x = 'Residuos',y = 'Frecuencia relativa', title = '')
+  histog
+  
+```
+
+
+
+
 HETEROSCEDASTICIDAD
 ```{r}
-Sta<-sqrt(sum(sin_ati$residuals^2)/139)
 #primero analizamos la siguiente grafica modelo solo con orcutt
-ggplot(datos, aes(x = mCorregido$fitted.values ,y =mCorregido$residuals/S)) + 
-  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') + geom_point() + theme_bw()
+ggplot(datos, aes(x = mejoraCDMX$fitted.values ,y =mejoraCDMX$residuals/S)) + 
+  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = '') + geom_point() + theme_bw()
 #Vemos cómo que los residuos siguen un patron
 #Regresión Auxiliar
-aux <- lm(mCorregido$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, datos)
+aux <- lm(mejoraCDMX$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, datos)
 summary(aux)
-nr2 <- 144*0.07749
+nr2 <- 144*0.07631
 nr2
+
 #analizando sin datos atipicos
+Sta<-sqrt(sum(sin_ati$residuals^2)/139)
 ggplot(BaseSA, aes(x = sin_ati$fitted.values ,y =sin_ati$residuals/Sta)) + 
-  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') + geom_point() + theme_bw()
+  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = '') + geom_point() + theme_bw()
 aux2 <- lm(sin_ati$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, BaseSA)
 summary(aux2)
 nr22 <-144*0.06803
 nr22
+
 #Analizando heterosc con la transformcion potencia
 ggplot(BaseSA, aes(x = transf$fitted.values ,y =transf$residuals/St)) + 
-  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = 'Ingreso Estimado vs. Residuos') + geom_point() + theme_bw()
+  labs(x = 'Ingreso Estimado',y = 'Residuos Estandarizados', title = '') + geom_point() + theme_bw()
 #prueba de white
 #Regresión Auxiliar
 aux3 <- lm(transf$residuals^2 ~ edad_jefe  + erogac_tot + gasto_mon  + educa_jefe + edad_jefe^2  + erogac_tot^2 + gasto_mon^2  + educa_jefe^2 + edad_jefe*erogac_tot + edad_jefe*gasto_mon  + edad_jefe*educa_jefe + erogac_tot*gasto_mon  + erogac_tot*educa_jefe + gasto_mon*educa_jefe, BaseSA)
 summary(aux3)
 #El estadistico de prueba es
-nr23 <- 144*0.0680
+nr23 <- 144*0.1247
 nr23
 qchisq(.95, 14)
 #No se rechaza la hipótesis Ho, los residuos son homoscedasticos
