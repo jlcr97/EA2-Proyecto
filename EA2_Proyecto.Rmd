@@ -74,8 +74,25 @@ Analizando el modelo individual, obtendremos los valores estimados bo, .., b6 pa
 modeloCDMX <- lm(datos$ing_cor ~ edad_jefe + erogac_tot + gasto_mon + sexo_jefe + educa_jefe + est_socio, datos)
 summary(modeloCDMX) 
 ```
+
+Como estrato socioeconómico es el p-value más grande, ahora corremos la regresión omitiendo esa variable y volvemos a buscar el p-value más grande
+```{r}
+
+modeloCDMX2 <- lm(datos$ing_cor ~ edad_jefe + erogac_tot + gasto_mon + sexo_jefe + educa_jefe, datos)
+summary(modeloCDMX2) 
+```
+
 Notemos que por el **p-value** y el **estadístico F**, se rechaza la hipótesis de que $\beta_0 \neq 0$, por lo que sí tenemos ordenada al origen.
-También veamos que con las **pruebas t** rechazamos las variables de sexo del jefe del hogar y el estrato socioeconómico del mismo. Por lo tanto, solo vamos a considerar a $Y = \beta_0 + \beta_1 X_{edad} + \beta_2 X_{erogac} + \beta_4 X_{gasto} + \beta_5 X_{añosEsc}$
+También veamos que con las **pruebas t** rechazamos las variables de sexo del jefe del hogar y el estrato socioeconómico del mismo.
+
+
+Veamos que ahora con el modelo de regresión lineal solo con las 4 variables: edad, erogaciones totales, gasto y años escolarizados ya todas son significativas. Por lo tanto, solo vamos a considerar a $Y = \beta_0 + \beta_1 X_{edad} + \beta_2 X_{erogac} + \beta_4 X_{gasto} + \beta_5 X_{añosEsc}$
+```{r}
+    mejoraCDMX1 <- lm(datos$ing_cor ~ edad_jefe  +erogac_tot + gasto_mon  + educa_jefe, datos) 
+    summary(mejoraCDMX1) 
+```
+
+
 
 
 Renombramos las variables del sexo 1: hombre y 0: mujer
