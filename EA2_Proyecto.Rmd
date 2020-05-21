@@ -98,7 +98,7 @@ ggplot(datos,aes(as.factor(est_socio), ing_cor))+geom_point() +labs(y= "Ingreso 
 
 ESTE ES EL MODELO CON EL QUE VAMOS A TRABAJAR 
 
-Tras reducir el modelo por dos variable; es decir, tras quitar el estrato socioeconómico y el sexo, el modelo mejorado queda como $Y = \beta_0 + \beta_1 X_{edad} + \beta_2 X_{erogac} + \beta_4 X_{gasto} + \beta_5 X_{añosEsc}$
+Tras reducir el modelo por dos variable; es decir, tras quitar el estrato socioeconómico y el sexo, el modelo mejorado queda como $Y = \beta_0 + \beta_1 X_{edad} + \beta_2 X_{erogac} + \beta_3 X_{gasto} + \beta_4 X_{añosEsc}$
 ```{r}
   mejoraCDMX <- lm(datos$ing_cor ~ edad_jefe  +erogac_tot + gasto_mon  + educa_jefe, datos) 
   summary(mejoraCDMX) 
