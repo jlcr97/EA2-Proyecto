@@ -67,7 +67,7 @@ Notemos que por el **p-value** y el **estadístico F**, se rechaza la hipótesis
 También veamos que con las **pruebas t** rechazamos las variables de sexo del jefe del hogar y el estrato socioeconómico del mismo.
 
 
-Veamos que ahora con el modelo de regresión lineal solo con las 4 variables: edad, erogaciones totales, gasto y años escolarizados ya todas son significativas. Por lo tanto, solo vamos a considerar a $Y = \beta_0 + \beta_1 X_{edad} + \beta_2 X_{erogac} + \beta_4 X_{gasto} + \beta_5 X_{añosEsc}$
+Veamos que ahora con el modelo de regresión lineal solo con las 4 variables: edad, erogaciones totales, gasto y años escolarizados ya todas son significativas. Por lo tanto, solo vamos a considerar a $Y = \beta_0 + \beta_1 X_{edad} + \beta_2 X_{erogac} + \beta_3 X_{gasto} + \beta_4 X_{añosEsc}$
 ```{r}
     mejoraCDMX1 <- lm(datos$ing_cor ~ edad_jefe  +erogac_tot + gasto_mon  + educa_jefe, datos) 
     summary(mejoraCDMX1) 
